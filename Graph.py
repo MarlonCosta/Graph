@@ -1,5 +1,6 @@
 import pandas as pd
 
+
 class Graph:
     def __init__(self, vertices=[], edges=[]):
         '''
@@ -76,5 +77,5 @@ class Graph:
         return str(df)
 
 
-grafo = Graph(["Iri", "neu"], ["Iri-neu", "neu-Iri"])
+grafo = Graph(["A", "Bola", "C"], ["A-C", "Bola-C", "A-Bola", "C-Bola", "C-Bola"])
 print(grafo)
