@@ -1,3 +1,5 @@
+import pandas as pd
+
 class Graph:
     def __init__(self, vertices=[], edges={}):
         '''
@@ -27,6 +29,7 @@ class Graph:
         return self.vertices
 
     def checkedge(self, edge):
+        # TODO Criar e implementar um TAD Edge
         '''Checa se uma aresta é válida'''
         if edge.count(self.separator) != 1:
             return False
@@ -68,17 +71,9 @@ class Graph:
         return matrix
 
     def __str__(self):
-        matrix = self.generatematrix()
-        out = '     '
-        for vertix in self.vertices:
-            out += vertix + '    '
-
-        out += '\n'
-
-        for line in matrix:
-            out += self.vertices[matrix.index(line)] + '  ' + str(line) + '\n'
-        return out
+        df = pd.DataFrame(self.generatematrix(), index=self.vertices, columns=self.vertices)
+        return str(df)
 
 
-grafo = Graph(["A", "B", "C", "D", "E"], {"a1": "A-C", "a2": "B-B", "a3": "A-A", "a4": "A-B"})
+grafo = Graph(["A", "B", "C", "D", "E", "F", "G"], {"a1": "A-C", "a2": "B-B", "a3": "A-A", "a4": "A-B"})
 print(grafo)
