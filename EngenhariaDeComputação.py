@@ -20,29 +20,34 @@ disciplinas = {00: 'Início do Curso',
                75: 'Circuitos Eletro-Eletrônicos', 81: 'Teste de Software', 82: 'Gerência de Projetos',
                83: 'Técnicas de Prototipagem', 84: 'Processamento Digital de Sinais', 85: 'Sensores e Atuadores',
                91: 'Empreendendorismo de Base Tecnológica', 92: 'Projeto em Engenharia de Computação I',
-               93: 'Sistemas Embarcados', 94: 'Controle e Automação I'. 95: 'Optativa I', 101: 'Direito e Cidadania',
-               102: 'Ética', 103: 'Projeto em Engenharia de Computação II', 104: 'Optativa II', 105: 'Optativa III'}
+               93: 'Sistemas Embarcados', 94: 'Controle e Automação I', 95: 'Optativa I', 101: 'Direito e Cidadania',
+               102: 'Ética', 103: 'Projeto em Engenharia de Computação II', 104: 'Optativa II', 105: 'Optativa III',
+               110: 'Conclusão'}
 
-requisitos = [(00, 11), (00, 12), (00, 13), (00, 14), (00, 15), (00, 16), (00, 17), (11, 21), (11, 23), (14, 25),
-              (15, 25), (16, 26), (21, 31), (25, 33), (14, 34), (15, 34), (14, 35), (15, 35), (26, 36), (21, 41),
-              (25, 43), (25, 44), (36, 44), (36, 45), (31, 51), (31, 52), (25, 53), (25, 54), (36, 55), (44, 55),
-              (51, 61), (43, 62), (34, 63), (35, 63), (31, 64), (55, 65), (25, 72), (63, 73), (52, 75), (64, 75),
-              (34, 81), (35, 81), (54, 81), (73, 82), (74, 83), (61, 84), (64, 84), (75, 85),
-              (83, 92), (44, 93), (45, 93), (61, 94), (75, 94), (92, 103)]
+# Isoladas: ['Leitura e prodrução de textos', 'Laboratório de estrutura de dados e algoritmo', 'Ciências do ambiente',
+#  'Relações Humanas no Trabalho', 'Metodologia de Pesquisa Científica', 'Libras',
+# 'Empreendendorismo de Base Tecnológica', 'Optativa I']
 
-grafo = nx.DiGraph()
-grafo.add_nodes_from(disciplinas.values())
+requisitos = [(00, 11), (00, 12), (00, 13), (00, 14), (00, 15), (00, 16), (00, 17), (22, 110), (24, 110), (27, 110),
+              (32, 110), (42, 110), (71, 110), (91, 110), (95, 110), (11, 21), (11, 23), (14, 25), (15, 25), (16, 26),
+              (21, 31), (25, 33), (14, 34), (15, 34), (14, 35), (15, 35), (26, 36), (21, 41), (25, 43), (25, 44),
+              (36, 44), (36, 45), (31, 51), (31, 52), (25, 53), (25, 54), (36, 55), (44, 55), (51, 61), (43, 62),
+              (34, 63), (35, 63), (31, 64), (55, 65), (25, 72), (63, 73), (52, 75), (64, 75), (34, 81), (35, 81),
+              (54, 81), (73, 82), (74, 83), (61, 84), (64, 84), (75, 85), (83, 92), (44, 93), (45, 93), (61, 94),
+              (75, 94), (92, 110), (101, 110), (102, 110), (103, 110), (104, 110), (105, 110)]
+
+grafo = nx.Graph()
+for node in disciplinas:
+    grafo.add_node(disciplinas[node], pos=(node // 10, node % 10))
 for edge in requisitos:
     grafo.add_edge(disciplinas[edge[0]], disciplinas[edge[1]])
 
 print(grafo.nodes())
 print(grafo.edges())
-
+print(nx.isolates(grafo))
 d = nx.degree(grafo)
-
-pos = nx.spring_layout(grafo)
-
-nx.draw_networkx_labels(grafo, pos, font_size=8)
-nx.draw(grafo, pos, nodelist=d.keys(), node_size=[v * 100 for v in d.values()])
+pos = nx.get_node_attributes(grafo, 'pos')
+nx.draw_networkx_labels(grafo, pos, font_size=10)
+nx.draw(grafo, pos, nodelist=d.keys(), node_size=[v * 75 for v in d.values()])
 
 plt.show()  # display

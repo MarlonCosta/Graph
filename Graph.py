@@ -4,7 +4,7 @@ import pandas as pd
 class Graph:
     def __init__(self, vertices=[], edges=[]):
         '''
-        Português: Constrói um objeto Graph. Se houver um vértice ou aresta inválido(a), uma exceção é chamada
+        Constrói um objeto Graph. Se houver um vértice ou aresta inválido(a), uma exceção é chamada
         :param vertices: Uma lista com os vértices do grafo.
         :param edges: Uma lista com as arestas no formato nome(A-B), sendo A e B vértices válidos'''
 
@@ -13,12 +13,10 @@ class Graph:
         self.edges = edges
 
         for vertix in vertices:
-            if not self.checkvertix(vertix):
-                raise ValueError("Invalid Vertix: " + vertix)
+            self.checkvertix(vertix)
 
         for edge in edges:
-            if not self.checkedge(edge):
-                raise ValueError("Invalid edge: " + edge)
+            self.checkedge(edge)
 
     def getedges(self):
         '''Retorna as arestas'''
@@ -31,19 +29,24 @@ class Graph:
     def checkedge(self, edge):
         '''Checa se uma aresta é válida'''
         if edge.count(self.separator) != 1:
-            return False
+            raise ValueError("Invalid edge " + edge + ": more than one separator on the edge")
+
         if edge.startswith(self.separator) or edge.endswith(self.separator):
-            return False
+            raise ValueError("Invalid edge " + edge + ": separator character at the beggining or the end of the edge")
+
         if edge[:edge.index(self.separator)] not in self.vertices \
                 or edge[edge.index(self.separator) + 1:] not in self.vertices:
-            return False
-        return True
+            raise ValueError("Invalid edge " + edge + " vertix not found")
 
     def checkvertix(self, vertix):
         '''Checa se um vértice é válido'''
-        if self.separator in vertix or vertix == "":
-            return False
-        return True
+        if self.separator in vertix:
+            raise ValueError("Invalid Vertix " + vertix + ": vertix contains separator character")
+        if vertix == "":
+            raise ValueError("Invalid Vertix: Empty value")
+        for v in self.vertices:
+            if self.vertices.count(v) > 1:
+                raise ValueError("Invalid Vertix: Two or more inputs of the same vertix " + v)
 
     def generatematrix(self):
         '''Gera a matriz que representa o grafo'''
@@ -77,5 +80,5 @@ class Graph:
         return str(df)
 
 
-grafo = Graph(['J', 'C', 'E', 'P', 'M', 'T', 'Z'], ['J-C', 'C-E', 'C-E', 'C-P', 'C-P', 'C-M', 'C-T', 'M-T', 'T-Z'])
+grafo = Graph(['José', 'Maria', 'João'], ['José-José', 'José-Maria', 'Maria-José', 'Maria-Maria', 'João-João'])
 print(grafo)
