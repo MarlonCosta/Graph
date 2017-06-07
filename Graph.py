@@ -74,11 +74,30 @@ class Graph:
 
         return matrix
 
+    def checkbetweenvertices(self, vertix1, vertix2):
+
+        if vertix1 + "-" + vertix2 in self.edges or vertix2 + "-" + vertix1 in self.edges:
+            return True
+        else:
+            return False
+
+    def nonadjacentpairs(self):
+        pares = []
+        matrix = self.generatematrix()
+        for line in range(len(matrix)):
+            for column in range(len(matrix[line])):
+                if matrix[line][column] == 0:
+                    saida = self.vertices[matrix.index(line)] + self.separator + self.vertices[matrix.index(column)]
+                    pares.append(saida)
+        return pares
+
+
     def __str__(self):
         '''Converte o grafo em um DataFrame para melhor exibição'''
         df = pd.DataFrame(self.generatematrix(), index=self.vertices, columns=self.vertices)
         return str(df)
 
 
-grafo = Graph(['José', 'Maria', 'João'], ['José-José', 'José-Maria', 'Maria-José', 'Maria-Maria', 'João-João'])
-print(grafo)
+g = Graph(['J', 'C', 'E', 'P', 'M', 'T', 'Z'], ['J-C', 'C-E', 'C-E', 'C-P', 'C-P', 'C-M', 'C-T', 'M-T', 'T-Z'])
+print(g)
+print(g.nonadjacentpairs())
