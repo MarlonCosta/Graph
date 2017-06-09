@@ -54,7 +54,7 @@ class Graph:
             if self.vertices.count(v) > 1:
                 raise ValueError("Invalid vertex: Two or more inputs of the same vertex " + v)
 
-    def generatematrix(self):
+    def generatematrix(self, hide=True):
         '''Gera a matriz que representa o grafo'''
         matrix = []
         for v in self.vertices:
@@ -70,13 +70,13 @@ class Graph:
                     matrix[x][y] += list(self.edges).count(comb)
                     if comb != rev_comb:
                         matrix[x][y] += list(self.edges).count(rev_comb)
-
-        for i in range(len(matrix)):
-            for j in range(len(matrix)):
-                if type(matrix[i][j]) != str:
-                    matrix[i][j] = str(matrix[i][j])
-                if i > j:
-                    matrix[i][j] = '-'
+        if hide == True:
+            for i in range(len(matrix)):
+                for j in range(len(matrix)):
+                    if type(matrix[i][j]) != str:
+                        matrix[i][j] = str(matrix[i][j])
+                    if i > j:
+                        matrix[i][j] = '-'
 
         return matrix
 
@@ -164,33 +164,41 @@ class Graph:
 
     def iscomplete(self):
         '''Retorna um booleano indicando se o grafo é completo'''
+        for line in range(len(self.matrix)):
+            for column in range(len(self.matrix[line])):
+                if self.matrix[line][column] == '0':
+                    return False
+                else:
+                    return True
 
-        # Separar as arestas únicas, ignorando paralelas ou inversas
-        uniqueEdges = []
+    def findpath(self):
+        caminho = [self.vertices[0]]
 
-        for edge in self.edges:
-            head = edge[:edge.index(self.separator)]
-            tails = edge[edge.index(self.separator) + 1:]
-            rev_edge = tails + self.separator + head
-            if rev_edge in uniqueEdges:
-                continue
-            else:
-                uniqueEdges.append(edge)
+        def checkline(linha, pai):
+            if self.matrix[linha].count('0') + self.matrix[linha].count('-') != len(self.matrix[linha]):
+                for elem in self.matrix[linha]:
+                    if elem != '-' and elem != '0':
+                        caminho.append(self.vertices[self.matrix[linha].index(elem)])
+                        return caminho + checkline(self.matrix[linha].index(elem), linha)
+                    else:
+                        continue
+            return caminho
 
-        n = len(self.vertices)
+        checkline(0, 0)
 
-        if len(uniqueEdges) == n * (n - 1) / 2:
-            return True
-        else:
-            return False
+        return caminho
 
 
-g = Graph(['J', 'C', 'E', 'P', 'M', 'T', 'Z'], ['J-C', 'C-E', 'C-E', 'C-E', 'C-P', 'C-M', 'C-T', 'M-T', 'T-Z'])
-
-print(g)
-print(g.nonadjacentpairs())  # Questão 3.a
-print(g.getloops())  # Questão 3.b (alteração: retorna os vértices onde existem loops em vez de True)
-print(g.getparalleledges())  # Questão 3.c (alteração: retorna quais arestas tem outras arestas paralelas)
-print(g.degree("C"))  # Questão 3.d
-print(g.edgesin("M"))  # Questão 3.e
-print(g.iscomplete())  # Questão 3.f
+g = Graph(['J', 'C', 'E', 'P', 'M', 'T', 'Z'], ['J-C', 'C-E', 'C-E', 'C-P', 'C-P', 'C-M', 'C-T', 'M-T', 'T-Z'])
+# g = Graph(['a','b','c','d','e','f'],['a-b','b-c','a-d', 'b-e','c-e','c-f'])
+print(g, '\n')
+''''
+print("Pares não adjacentes: ", g.nonadjacentpairs())  # Questão 3.a
+print("Vértices adjacentes a si mesmos:",
+      g.getloops())  # Questão 3.b (alteração: retorna os vértices onde existem loops em vez de True)
+print("Arestas que possuem alguma paralela:",
+      g.getparalleledges())  # Questão 3.c (alteração: retorna quais arestas tem outras arestas paralelas em vez de True)
+print("Grau do vértice C:", g.degree("C"))  # Questão 3.d
+print("Arestas incidentes no vértice M:", g.edgesin("M"))  # Questão 3.e
+print("O grafo é completo?:", g.iscomplete())  # Questão 3.f'''
+print(g.findpath())
