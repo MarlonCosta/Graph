@@ -58,34 +58,45 @@ class Graph:
 
         return matrix
 
-    def getdegree(self, vertex):
+    def degree(self, vertex):
         return len(self.vertices[vertex])
 
     def getcycle(self):
         cycle = []
 
-        def busca(v):
+        def busca(vertex):
+            def checkcycle():
+                for v in cycle:
+                    if cycle.count(v) > 1:
+                        return True
 
-            if v not in cycle:
-                cycle.append(str(v))
-            else:
-                return
+            if checkcycle():
+                return cycle
 
-            adjacencies = list(set(self.vertices[v]) - set(cycle))
-            if len(adjacencies) > 0:
-                for adj in adjacencies:
-                    busca(adj)
-            else:
+            if vertex in cycle:
+                if (len(cycle) - cycle.index(vertex)) > 2:
+                    cycle.append(vertex)
+                    return cycle
+                else:
+                    return cycle
+
+            cycle.append(vertex)
+
+            if len(self.vertices[vertex]) <= 1:
                 cycle.pop()
-            return cycle
+                return cycle
+            for v in self.vertices[vertex]:
+                busca(v)
 
         for v in self.vertices:
             busca(v)
-        else:
-            return cycle
+
+        return cycle
 
     def iscomplete(self):
         for vertex in self.vertices:
+            if len(self.vertices[vertex]) != len(self.vertices):
+                return False
             for aux_vertex in self.vertices:
                 if vertex not in self.vertices[aux_vertex]:
                     return False
@@ -158,8 +169,24 @@ class Graph:
             return path
 
 
+# Grafo do roteiro
 g = Graph([('J', ['C']), ('C', ['J', 'E', 'P', 'M', 'T']), ('E', ['C']), ('P', ['C']), ('M', ['C', 'T']),
            ('T', ['C', 'Z', 'M']), ('Z', ['T'])])
 
-print(g.getpath(size=4))
+# Grafo com ciclo quadrado
+# g = Graph([('a', ['b', 'e']), ('b', ['a', 'c']), ('c', ['b', 'd']), ('d', ['c', 'e']),('e',['d','a'])])
+
+# 3.a: Encontre todos os pares de vértices não adjacentes.
+print(g.nonadjacent())
+# 3.d: Qual o grau do vértice C?
+print(g.degree('c'))
+# 3.e: Quais arestas incidem no vertice M?
+print(g.getedges('a'))
+# 3.f: Esse grafo é completo?
+print(g.iscomplete())
+# 3.g: (DESAFIO) Encontre um ciclo, se houver.
+print(g.getcycle())
+# 3.h: Encontre um caminho de comprimento 4, se houver.
+print(g.getpath(4))
+# 3.i: (DESAFIO) Esse grafo é conexo?
 print(g.isconex())
