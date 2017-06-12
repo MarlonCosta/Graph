@@ -179,9 +179,12 @@ class Graph:
                 for elem in self.matrix[linha]:
                     if elem != '-' and elem != '0':
                         caminho.append(self.vertices[self.matrix[linha].index(elem)])
-                        return caminho + checkline(self.matrix[linha].index(elem), linha)
+                        caminho + checkline(self.matrix[linha].index(elem), linha)
                     else:
                         continue
+                return caminho
+            else:
+                caminho.pop(caminho.index(caminho[-1]))
             return caminho
 
         checkline(0, 0)
@@ -189,8 +192,8 @@ class Graph:
         return caminho
 
 
-g = Graph(['J', 'C', 'E', 'P', 'M', 'T', 'Z'], ['J-C', 'C-E', 'C-E', 'C-P', 'C-P', 'C-M', 'C-T', 'M-T', 'T-Z'])
-# g = Graph(['a','b','c','d','e','f'],['a-b','b-c','a-d', 'b-e','c-e','c-f'])
+# g = Graph(['J', 'C', 'E', 'P', 'M', 'T', 'Z'], ['J-C', 'C-E', 'C-E', 'C-P', 'C-P', 'C-M', 'C-T', 'M-T', 'T-Z'])
+g = Graph(['a', 'b', 'c', 'd', 'e', 'f'], ['a-b', 'b-c', 'a-d', 'b-e', 'c-e', 'c-f'])
 print(g, '\n')
 ''''
 print("Pares não adjacentes: ", g.nonadjacentpairs())  # Questão 3.a
