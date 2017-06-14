@@ -1,4 +1,5 @@
-from Graph import Graph
+from graph import Graph
 
-g = Graph(['J', 'C', 'E', 'P', 'M', 'T', 'Z'], ['J-C', 'C-E', 'C-E', 'C-P', 'C-P', 'C-M', 'C-T', 'M-T', 'T-Z'])
+g = Graph([('J', ['C']), ('C', ['J', 'E', 'P', 'M', 'T']), ('E', ['C']), ('P', ['C']), ('M', ['C', 'T']),
+           ('T', ['C', 'Z', 'M']), ('Z', ['T'])])
 print(g)

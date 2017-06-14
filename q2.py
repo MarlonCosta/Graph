@@ -1,7 +1,8 @@
-from Graph import Graph
+from graph import *
+from collections import OrderedDict
 
 
-def recebe_vertice():
+def getvertex():
     def checkvertix(vertix):
         '''Checa se um vértice é válido'''
         if '-' in vertix or ' ' in vertix:
@@ -13,51 +14,45 @@ def recebe_vertice():
                 raise ValueError("Invalid Vertix: Two or more inputs of the same vertix " + v)
 
     res = "y"
+    end_vertex = "y"
     vertices = []
-    while res == "y":
-        vertice = input("Informe um vertice:")
+    connections = []
+
+    while res.lower() == "y" or res.lower() == "yes":
+        vertex = input("Type a new vertex:")
+        end_vertex = "y"
         try:
-            checkvertix(vertice)
+            checkvertix(vertex)
         except ValueError:
-            print('Vértice inválido')
+            print('\nInvalid Vertex\n')
             continue
-        vertices.append(vertice)
-        res = input("se deseja continuar digite \'y\'")
+        vertices.append(vertex)
+        connections.append([])
+        while end_vertex.lower() == "y" or end_vertex.lower() == "yes":
+            edge = input("Type a vertex that %s is linked to: " % vertex)
+            connections[-1].append(edge)
+            end_vertex = input("Want to add another connection? (Y)")
+
+        res = input("Want to add another vertex? (Y)")
+
+    count = 0
+    for vertex in vertices:
+        vertex = (vertex, connections[vertices.index(vertex)])
+        vertices[count] = vertex
+        count += 1
+
+    vertices = OrderedDict(vertices)
+
+    for vertex in vertices:
+        for aux_vertex in vertices[vertex]:
+            if vertex not in vertices[aux_vertex]:
+                raise EdgeError
 
     return vertices
 
 
-def recebe_arestas(vertices):
-    def checkedge(edge):
-        '''Checa se uma aresta é válida'''
-        if edge.count('-') != 1:
-            raise ValueError("Invalid edge " + edge + ": more than one separator on the edge")
+vertices = getvertex()
 
-        if edge.startswith('-') or edge.endswith('-'):
-            raise ValueError("Invalid edge " + edge + ": separator character at the beggining or the end of the edge")
-
-        if edge[:edge.index('-')] not in vertices \
-                or edge[edge.index('-') + 1:] not in vertices:
-            raise ValueError("Invalid edge " + edge + " vertix not found")
-
-    res = "y"
-    arestas = []
-    while res == "y":
-        aresta = input("Informe uma aresta (Ex:J-G):")
-        try:
-            checkedge(aresta)
-        except ValueError:
-            print('Aresta inválida')
-            continue
-        arestas.append(aresta)
-        res = input("se deseja continuar digite \'y\'")
-
-    return arestas
-
-
-vertices = recebe_vertice()
-arestas = recebe_arestas(vertices)
-
-g = Graph(vertices, arestas)
+g = Graph(vertices)
 
 print(g)

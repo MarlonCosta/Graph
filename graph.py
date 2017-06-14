@@ -4,16 +4,33 @@ from collections import OrderedDict
 separator = '-'
 
 
+class EdgeError(Exception):
+    pass
+
+
 class Graph:
     def __init__(self, vertices):
+        """
+        Graph constructor.
+        :param vertices: Receives a OrderedDict, which consists on a list of tuples, each one containing the vertex name
+        and a list of vertices that the vertex is connected to.
+        After that, checks if there's an edge described on only one vertex.
+        """
+
         self.vertices = OrderedDict(vertices)
 
+        for vertex in self.vertices:
+            for aux_vertex in self.vertices[vertex]:
+                if aux_vertex not in self.vertices[vertex] or vertex not in self.vertices[aux_vertex]:
+                    raise EdgeError("Edge only present in one of the vertices")
+
     def __str__(self):
-        '''Converte o grafo em um DataFrame para melhor exibição'''
+        """Converts the graph to a panda's DataFrame for better formatting"""
         df = DataFrame(self.genmatrix(), index=self.vertices, columns=self.vertices)
         return str(df)
 
     def nonadjacent(self):
+        """:return: Returns a list containing the pairs of non-adjacent vertices."""
         pairs = []
         for vertex in self.vertices:
             for aux_vertex in list(set(self.vertices) - set(vertex)):
@@ -23,6 +40,10 @@ class Graph:
         return pairs
 
     def getedges(self, vertex=None):
+        """
+        Returns a list with all edges on the graph (if vertex == None) or the ones containing the vertex.
+        """
+
         edges = []
         if vertex == None:
             for head in self.vertices:
@@ -37,6 +58,11 @@ class Graph:
         return edges
 
     def genmatrix(self, hide=True):
+        """
+        Generates and returns a matrix that represents the adjacencies between the vertices.
+        :param: hide: If True, replaces duplicate values (e.g: A-B and B-A) on the matrix for '-'.
+        """
+
         matrix = []
 
         for v in self.vertices:
@@ -48,7 +74,7 @@ class Graph:
                 y = list(self.vertices).index(connection)
                 matrix[x][y] = 1
 
-        if hide == True:
+        if hide:
             for i in range(len(matrix)):
                 for j in range(len(matrix)):
                     if type(matrix[i][j]) != str:
@@ -59,12 +85,17 @@ class Graph:
         return matrix
 
     def degree(self, vertex):
+        """Returns the degree of given vertex."""
         return len(self.vertices[vertex])
 
     def getcycle(self):
+        """Searches for any cycle on the graph, if a cycle is found, returns it, else, returns False."""
+
         cycle = []
 
-        def busca(vertex):
+        def search(vertex):
+            """Recursive search function"""
+
             def checkcycle():
                 for v in cycle:
                     if cycle.count(v) > 1:
@@ -86,14 +117,18 @@ class Graph:
                 cycle.pop()
                 return cycle
             for v in self.vertices[vertex]:
-                busca(v)
+                search(v)
 
         for v in self.vertices:
-            busca(v)
+            search(v)
 
-        return cycle
+        if cycle:
+            return cycle
+        else:
+            return False
 
     def iscomplete(self):
+        """Checks if the graph is complete. Returns a corresponding boolean."""
         for vertex in self.vertices:
             if len(self.vertices[vertex]) != len(self.vertices):
                 return False
@@ -103,44 +138,58 @@ class Graph:
         return True
 
     def pathbetween(self, head, tail):
-        self.head = head
-        self.tail = tail
 
-        path = [head]
+        path = []
 
-        def percorrer(head):
-            if self.tail in path:
-                return path
-            for vertex in list(set(self.vertices[head]) - set(path)):
-                if vertex not in path:
-                    path.append(str(vertex))
-                    if self.tail in path:
-                        return path
-                adjacencies = list(set(self.vertices[vertex]) - set(path))
-                if len(adjacencies) > 0:
-                    for adj in adjacencies:
-                        if self.tail in path:
-                            return path
-                        percorrer(adj)
+        if head + separator + tail in self.getedges() or tail + separator + head in self.getedges():
+            path.append(head)
+            path.append(tail)
             return path
 
-        percorrer(self.head)
-        return path
+        def search(vertex):
+            path.append(vertex)
 
-    def isconex(self):
+            if path[0] == head and path[-1] == tail:
+                return path
+            adjacencies = (set(self.vertices[vertex]) - set(path))
+
+            if not adjacencies:
+                if path[0] == head and path[-1] == tail:
+                    return path
+                else:
+                    path.pop()
+                    return path
+
+            for v in adjacencies:
+                if path[0] == head and path[-1] == tail:
+                    return path
+                else:
+                    search(v)
+
+        search(head)
+
+        if path[0] == head and path[-1] == tail:
+            return path
+        else:
+            return False
+
+    def isconnected(self):
+        """Check if the graph is connected. i.e. if the every vertex has a path to every different vertex.
+        Returns a corresponding boolean."""
+
         for vertex in self.vertices:
-            if not self.vertices[vertex]:
-                return False
             for aux_vertex in self.vertices:
                 if not self.pathbetween(vertex, aux_vertex):
                     return False
+
         return True
 
-    def getpath(self, size=0):
+    def getpath(self, length=0):
+        """Searches for a path of given length, if found, returns it, else, returns False."""
         path = []
 
         def search(v):
-            if len(path) == size:
+            if len(path) == length + 1:
                 return path
 
             if not self.vertices[v]:
@@ -148,7 +197,7 @@ class Graph:
 
             if v not in path:
                 path.append(str(v))
-                if len(path) == size:
+                if len(path) == length + 1:
                     return path
             else:
                 return
@@ -163,30 +212,20 @@ class Graph:
 
         for v in self.vertices:
             search(v)
-        if len(path) != size:
+        if len(path) != length + 1:
             return False
         else:
             return path
 
 
-# Grafo do roteiro
-g = Graph([('J', ['C']), ('C', ['J', 'E', 'P', 'M', 'T']), ('E', ['C']), ('P', ['C']), ('M', ['C', 'T']),
-           ('T', ['C', 'Z', 'M']), ('Z', ['T'])])
+# g = Graph([('a', ['b', 'e']), ('b', ['a', 'c']), ('c', ['b', 'd']), ('d', ['c', 'e']), ('e', ['d', 'a'])])
 
-# Grafo com ciclo quadrado
-# g = Graph([('a', ['b', 'e']), ('b', ['a', 'c']), ('c', ['b', 'd']), ('d', ['c', 'e']),('e',['d','a'])])
+g = Graph([('a', ['b']), ('b', ['a']), ('c', ['d']), ('d', ['c'])])
+# g = Graph([('J', ['C']), ('C', ['J', 'E', 'P', 'M', 'T']), ('E', ['C']), ('P', ['C']), ('M', ['C', 'T']), ('T', ['C', 'Z', 'M']), ('Z', ['T'])])
 
-# 3.a: Encontre todos os pares de vértices não adjacentes.
-print(g.nonadjacent())
-# 3.d: Qual o grau do vértice C?
-print(g.degree('c'))
-# 3.e: Quais arestas incidem no vertice M?
-print(g.getedges('a'))
-# 3.f: Esse grafo é completo?
-print(g.iscomplete())
-# 3.g: (DESAFIO) Encontre um ciclo, se houver.
+print('3.g: (DESAFIO) Encontre um ciclo qualquer, se houver.')
 print(g.getcycle())
-# 3.h: Encontre um caminho de comprimento 4, se houver.
-print(g.getpath(4))
-# 3.i: (DESAFIO) Esse grafo é conexo?
-print(g.isconex())
+print('3.h: (DESAFIO) Encontre um caminho de comprimento 4, se houver.')
+print(g.getpath(2))
+print('3.i: (DESAFIO) Esse grafo é conexo?')
+print(g.isconnected())
