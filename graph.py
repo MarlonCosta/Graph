@@ -123,7 +123,7 @@ class Graph:
             search(v)
 
         if cycle:
-            return cycle
+            return '-'.join(cycle)
         else:
             return False
 
@@ -178,6 +178,8 @@ class Graph:
         Returns a corresponding boolean."""
 
         for vertex in self.vertices:
+            if not self.vertices[vertex]:
+                return False
             for aux_vertex in self.vertices:
                 if not self.pathbetween(vertex, aux_vertex):
                     return False
@@ -199,6 +201,9 @@ class Graph:
                 path.append(str(v))
                 if len(path) == length + 1:
                     return path
+                if len(path) > 1 and v not in self.vertices[path[-2]]:
+                    path.pop()
+                    return
             else:
                 return
 
@@ -215,17 +220,31 @@ class Graph:
         if len(path) != length + 1:
             return False
         else:
-            return path
+            return '-'.join(path)
 
 
-# g = Graph([('a', ['b', 'e']), ('b', ['a', 'c']), ('c', ['b', 'd']), ('d', ['c', 'e']), ('e', ['d', 'a'])])
+grafos_teste = [
+    Graph([('a', []), ('b', []), ('c', []), ('d', []), ('e', [])]),  # Grafo sem arestas
+    Graph([('a', ['b', 'e']), ('b', ['a', 'c']), ('c', ['b', 'd']), ('d', ['c', 'e']), ('e', ['d', 'a'])]),
+    # Grafo circular de 5 vértices e 5 arestas
+    Graph([('a', ['b']), ('b', ['a']), ('c', ['d']), ('d', ['c'])]),  # Grafo com 2 arestas desconexas
+    Graph([('J', ['C']), ('C', ['J', 'E', 'P', 'M', 'T']), ('E', ['C']), ('P', ['C']), ('M', ['C', 'T']),
+           # Grafo do roteiro
+           ('T', ['C', 'Z', 'M']), ('Z', ['T'])]),
+    Graph([('a', ['b', 'c']), ('b', ['c', 'a']), ('c', ['b', 'a'])]),  # Grafo triangular
+    Graph([('a', ['b', 'c', 'd', 'e']), ('b', ['a', 'c', 'd', 'e']), ('c', ['a', 'b', 'd', 'e']),
+           ('d', ['a', 'b', 'c', 'e']), ('e', ['a', 'b', 'c', 'd'])])
+    # Grafo completo de 5 vértices
 
-g = Graph([('a', ['b']), ('b', ['a']), ('c', ['d']), ('d', ['c'])])
-# g = Graph([('J', ['C']), ('C', ['J', 'E', 'P', 'M', 'T']), ('E', ['C']), ('P', ['C']), ('M', ['C', 'T']), ('T', ['C', 'Z', 'M']), ('Z', ['T'])])
+]
 
-print('3.g: (DESAFIO) Encontre um ciclo qualquer, se houver.')
-print(g.getcycle())
-print('3.h: (DESAFIO) Encontre um caminho de comprimento 4, se houver.')
-print(g.getpath(2))
-print('3.i: (DESAFIO) Esse grafo é conexo?')
-print(g.isconnected())
+'''for i in range(len(grafos_teste)):
+
+    print("Grafo-teste número %d\n" %(i+1)+str(grafos_teste[i]))
+    print("Ciclo encontrado:\n"+str(grafos_teste[i].getcycle())+"\n")
+    for j in range(5):
+        print("Buscando caminho de comprimento %d\n" %j+str(grafos_teste[i].getpath(j))+"\n")
+    print("O grafo-teste número %d é conexo?\n" %(i+1)+str(grafos_teste[i].isconnected())+"\n\n")
+'''
+
+print(grafos_teste[3].getpath(4))
