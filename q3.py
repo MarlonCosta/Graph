@@ -1,21 +1,7 @@
 from graph import Graph
 
-# Grafo do roteiro
 g = Graph([('J', ['C']), ('C', ['J', 'E', 'P', 'M', 'T']), ('E', ['C']), ('P', ['C']), ('M', ['C', 'T']),
            ('T', ['C', 'Z', 'M']), ('Z', ['T'])])
-
-# Grafo desconexo
-
-# Grafo com ciclo triangular
-# g = Graph([('a',['b','c']),('b',['c','a']),('c',['b','a'])])
-
-# Grafo com ciclo quadrado
-# g = Graph([('a', ['b', 'd']), ('b', ['a', 'c']), ('c', ['b', 'd']), ('d', ['a', 'c'])])
-
-# Grafo com ciclo de 5 vertices
-# g = Graph([('a', ['b', 'e']), ('b', ['a', 'c']), ('c', ['b', 'd']), ('d', ['c', 'e']),('e',['d','a'])])
-
-# Questoes
 
 print('3.a: Encontre todos os pares de vértices não adjacentes.')
 print(g.nonadjacent())
