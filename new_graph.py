@@ -231,7 +231,5 @@ class NewGraph:
 g = NewGraph([['a', 'b', 5], ['a', 'c', 10], ['b', 'd', 6], ['b', 'e', 3], ['d', 'f', 6], ['e', 'c', 2], ['e', 'd', 2],
               ['e', 'g', 2], ['g', 'f', 2]])
 
-for line in g.matrix:
-    print(line)
+print(g)
 print(g.dijkstra('a', True))
-
