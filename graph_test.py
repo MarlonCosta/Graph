@@ -1,5 +1,5 @@
 from graph import Graph
-
+'''
 grafos_teste = [
     Graph([('a', []), ('b', []), ('c', []), ('d', []), ('e', [])]),  # Grafo sem arestas
     Graph([('a', ['b', 'e']), ('b', ['a', 'c']), ('c', ['b', 'd']), ('d', ['c', 'e']), ('e', ['d', 'a'])]),
@@ -14,6 +14,13 @@ grafos_teste = [
     # Grafo completo de 5 vértices
 
 ]
+'''
+
+grafos_teste = [
+    #Grafos direcionados
+
+    Graph([('a', ['b']), ('b', ['c']), ('c', ['d']), ('d', ['e']), ('e', ['a'])]), # Grafo circular de 5 vértices e 5 arestas
+    Graph([('a', ['b']), ('b', ['c']), ('c', [])])]  # Grafo triangular
 
 for i in range(len(grafos_teste)):
 

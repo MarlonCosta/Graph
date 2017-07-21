@@ -8,6 +8,12 @@ class EdgeError(Exception):
     pass
 
 
+class Edge:
+    def __init__(self, head, tail, weight=1):
+        self.head = head
+        self.tail = tail
+        self.weight = weight
+
 class Graph:
     def __init__(self, vertices):
         """
@@ -18,11 +24,11 @@ class Graph:
         """
 
         self.vertices = OrderedDict(vertices)
+        self.edges = []
 
         for vertex in self.vertices:
             for aux_vertex in self.vertices[vertex]:
-                if aux_vertex not in self.vertices[vertex] or vertex not in self.vertices[aux_vertex]:
-                    raise EdgeError("Edge only present in one of the vertices")
+                self.edges.append(Edge(vertex, aux_vertex))
 
     def __str__(self):
         """Converts the graph to a panda's DataFrame for better formatting"""
@@ -38,6 +44,14 @@ class Graph:
                     if aux_vertex + separator + vertex not in pairs:
                         pairs.append(vertex + separator + aux_vertex)
         return pairs
+
+    def isdirected(self):
+        """Returns a boolean validating if the graph is directed"""
+        for vertex in self.vertices:
+            for aux_vertex in self.vertices[vertex]:
+                if aux_vertex not in self.vertices[vertex] or vertex not in self.vertices[aux_vertex]:
+                    return False
+        return True
 
     def getedges(self, vertex=None):
         """
@@ -223,3 +237,23 @@ class Graph:
                 path.pop()
 
         return False
+
+    def warshall(self):
+        matrix = self.genmatrix(hide=False)
+        for i in range(len(matrix)):
+            for j in range(len(matrix[i])):
+                if matrix[j][i] == 1:
+                    for k in range(len(self.vertices)):
+                        matrix[j][k] = max(matrix[j][k], matrix[i][k])
+
+        return DataFrame(matrix, index=self.vertices, columns=self.vertices)
+
+    def dijkstra(self, u, v):
+        fi = []
+        beta = []
+        pi = []
+
+        for vertex in self.vertices:
+            fi.append(0)
+            beta.append(0)
+            pi.append(0)
