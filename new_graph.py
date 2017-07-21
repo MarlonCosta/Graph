@@ -1,3 +1,5 @@
+from pandas import DataFrame
+
 class Edge:
     def __init__(self, head, tail, weight=1):
         self.head = head
@@ -28,6 +30,10 @@ class NewGraph:
             x = list(self.vertices).index(edge.head)
             y = list(self.vertices).index(edge.tail)
             self.matrix[x][y] = edge.weight
+
+
+    def __str__(self):
+        return str(DataFrame(self.matrix, index=self.vertices, columns=self.vertices))
 
     def addedge(self, edge):
         self.check_edge(edge)
@@ -60,6 +66,12 @@ class NewGraph:
                 if self.matrix[x][y] == 0 and self.matrix[y][x] == 0:
                     pairs.append(self.vertices[x] + "-" + self.vertices[y])
         return pairs
+
+    def getweight(self, origin, dest):
+        for edge in self.edges:
+            if edge.head == origin and edge.tail == dest:
+                return edge.weight
+        return None
 
     def getvertices(self):
         return self.vertices
@@ -161,7 +173,7 @@ class NewGraph:
         return None
 
     def eulerianpath(self):
-        return self.getpath(len(self.vertices)-1)
+        return self.getpath(len(self.vertices) - 1)
 
     def hamiltonianpath(self):
         cycle = self.eulerianpath()
@@ -181,8 +193,45 @@ class NewGraph:
                         matrix[j][k] = max(matrix[j][k], matrix[i][k])
         return matrix
 
-g = NewGraph([['c', 'a', 10], ['b', 'c'], ['a', 'b', 15]])
+    def dijkstra(self, source, df = False):
+
+        if source not in self.vertices:
+            return "Source vertex not found"
+
+        # Initial Setup
+        unvisited = self.vertices.copy()
+        distance = [float("inf")] * len(unvisited)
+        previous = [""] * len(unvisited)
+
+        for i in range(len(unvisited)):
+            if unvisited[i] in self.getdest(source):
+                distance[i] = self.getweight(source, unvisited[i])
+                previous[i] = source
+
+            else:
+                if unvisited[i] == source:
+                    distance[i] = 0
+
+        while unvisited:
+            u = self.vertices[self.vertices.index(min(unvisited))]
+            unvisited.remove(u)
+
+            for v in self.getdest(u):
+                alt = distance[self.vertices.index(u)]+self.getweight(u, v)
+                if alt < distance[self.vertices.index(v)]:
+                    distance[self.vertices.index(v)] = alt
+                    previous[self.vertices.index(v)] = u
+
+
+        if df == True:
+            return str(DataFrame([distance, previous], index=["Distance:", "From: "], columns=self.vertices))
+        else:
+            return [distance, previous]
+
+g = NewGraph([['a', 'b', 5], ['a', 'c', 10], ['b', 'd', 6], ['b', 'e', 3], ['d', 'f', 6], ['e', 'c', 2], ['e', 'd', 2],
+              ['e', 'g', 2], ['g', 'f', 2]])
+
 for line in g.matrix:
     print(line)
+print(g.dijkstra('a', True))
 
-print(g.getcycle())
