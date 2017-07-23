@@ -1,5 +1,6 @@
 from pandas import DataFrame
 
+
 class Edge:
     def __init__(self, head, tail, weight=1):
         self.head = head
@@ -30,7 +31,6 @@ class NewGraph:
             x = list(self.vertices).index(edge.head)
             y = list(self.vertices).index(edge.tail)
             self.matrix[x][y] = edge.weight
-
 
     def __str__(self):
         return str(DataFrame(self.matrix, index=self.vertices, columns=self.vertices))
@@ -116,30 +116,26 @@ class NewGraph:
                     return False
         return True
 
-    def pathbetween(self, start, end, visited=[]):
-        path = []
+    def pathbetween(self, start, end):
 
-        if end in self.getdest(start):
-            return [start, end]
+        if start not in self.vertices or end not in self.vertices:
+            raise IndexError("Vertex not found")
 
-        else:
-            path.append(start)
-            visited.append(start)
-            adj = list(set(self.getdest(start)) - set(visited))
-            if adj:
-                for vertex in adj:
-                    try:
-                        path += self.pathbetween(vertex, end, visited)
-                    except TypeError:
-                        path += []
-            else:
-                path.pop()
-            if len(path) > 2:
-                return path
-            else:
-                return None
+        path = [start]
+
+        previous = self.dijkstra(start)[1]
+        temp = end
+
+        while temp != start:
+            path.insert(-1, temp)
+            temp = previous[self.vertices.index(temp)]
+
+        return path[::-1]
 
     def getpath(self, size):
+        if size > len(self.getedges()):
+            raise IndexError("Size greater than the number of edges")
+
         def search(size, root, path, visited):
             path.append(root)
             visited.append(root)
@@ -184,16 +180,28 @@ class NewGraph:
                 return cycle + [cycle[0]]
         return None
 
-    def warshall(self):
-        matrix = list(self.matrix)
+    def warshall(self, df=False):
+        matrix = []
+
+        for line in self.matrix:
+            matrix.append(line.copy())
+
+        for i in range(len(matrix)):
+            for j in range(len(matrix[i])):
+                if matrix[i][j] > 0:
+                    matrix[i][j] = 1
+
         for i in range(len(matrix)):
             for j in range(len(matrix[i])):
                 if matrix[j][i] == 1:
                     for k in range(len(self.vertices)):
                         matrix[j][k] = max(matrix[j][k], matrix[i][k])
-        return matrix
+        if not df:
+            return matrix
+        else:
+            return DataFrame(matrix, self.vertices, self.vertices)
 
-    def dijkstra(self, source, df = False):
+    def dijkstra(self, source, df=False):
 
         if source not in self.vertices:
             return "Source vertex not found"
@@ -217,19 +225,21 @@ class NewGraph:
             unvisited.remove(u)
 
             for v in self.getdest(u):
-                alt = distance[self.vertices.index(u)]+self.getweight(u, v)
+                alt = distance[self.vertices.index(u)] + self.getweight(u, v)
                 if alt < distance[self.vertices.index(v)]:
                     distance[self.vertices.index(v)] = alt
                     previous[self.vertices.index(v)] = u
 
-
-        if df == True:
+        if df:
             return str(DataFrame([distance, previous], index=["Distance:", "From: "], columns=self.vertices))
         else:
             return [distance, previous]
 
+
 g = NewGraph([['a', 'b', 5], ['a', 'c', 10], ['b', 'd', 6], ['b', 'e', 3], ['d', 'f', 6], ['e', 'c', 2], ['e', 'd', 2],
               ['e', 'g', 2], ['g', 'f', 2]])
 
-print(g)
-print(g.dijkstra('a', True))
+print(g)  # ok
+
+print(g.warshall(df=True))
+print(g.dijkstra('a', df=True))
