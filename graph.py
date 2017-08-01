@@ -32,8 +32,7 @@ class Graph:
 
     def __str__(self):
         """Converts the graph to a panda's DataFrame for better formatting"""
-        df = DataFrame(self.genmatrix(), index=self.vertices, columns=self.vertices)
-        return str(df)
+        5
 
     def nonadjacent(self):
         """:return: Returns a list containing the pairs of non-adjacent vertices."""

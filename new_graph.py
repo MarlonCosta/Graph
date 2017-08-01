@@ -236,10 +236,7 @@ class NewGraph:
             return [distance, previous]
 
 
-g = NewGraph([['a', 'b', 5], ['a', 'c', 10], ['b', 'd', 6], ['b', 'e', 3], ['d', 'f', 6], ['e', 'c', 2], ['e', 'd', 2],
-              ['e', 'g', 2], ['g', 'f', 2]])
+g = NewGraph([['c', 'a'], ['a', 'b'], ['b', 'c']])
 
 print(g)  # ok
-
-print(g.warshall(df=True))
-print(g.dijkstra('a', df=True))
+print(g.eulerianpath())
