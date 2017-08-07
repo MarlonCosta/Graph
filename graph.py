@@ -14,6 +14,13 @@ class Edge:
         self.tail = tail
         self.weight = weight
 
+    def __repr__(self):
+        return self.head + separator + self.tail
+
+    def __reversed__(self):
+        return self.tail + separator + self.head
+
+
 class Graph:
     def __init__(self, vertices):
         """
@@ -32,7 +39,7 @@ class Graph:
 
     def __str__(self):
         """Converts the graph to a panda's DataFrame for better formatting"""
-        5
+        return str(DataFrame(self.genmatrix(), index=self.vertices, columns=self.vertices))
 
     def nonadjacent(self):
         """:return: Returns a list containing the pairs of non-adjacent vertices."""
@@ -43,14 +50,6 @@ class Graph:
                     if aux_vertex + separator + vertex not in pairs:
                         pairs.append(vertex + separator + aux_vertex)
         return pairs
-
-    def isdirected(self):
-        """Returns a boolean validating if the graph is directed"""
-        for vertex in self.vertices:
-            for aux_vertex in self.vertices[vertex]:
-                if aux_vertex not in self.vertices[vertex] or vertex not in self.vertices[aux_vertex]:
-                    return False
-        return True
 
     def getedges(self, vertex=None):
         """
@@ -69,6 +68,24 @@ class Graph:
                     edges.append(str(vertex) + separator + tail)
 
         return edges
+
+    def addedge(self, head, tail):
+        for vertex in self.vertices:
+            if vertex == head and tail not in self.vertices[vertex]:
+                self.vertices[vertex].append(tail)
+            if vertex == tail and head not in self.vertices[vertex]:
+                self.vertices[vertex].append(head)
+        self.edges.append(Edge(head, tail))
+
+    def removeedge(self, head, tail):
+        for vertex in self.vertices:
+            if vertex == head and tail in self.vertices[vertex]:
+                self.vertices[vertex].remove(tail)
+            if vertex == tail and head in self.vertices[vertex]:
+                self.vertices[vertex].remove(head)
+        for edge in self.edges:
+            if (edge.head == head and edge.tail == tail) or (edge.head == tail and edge.tail == head):
+                self.edges.remove(edge)
 
     def genmatrix(self, hide=True):
         """
@@ -237,22 +254,59 @@ class Graph:
 
         return False
 
-    def warshall(self):
+    def warshall(self, df=False):
         matrix = self.genmatrix(hide=False)
+
+        for i in range(len(matrix)):
+            for j in range(len(matrix[i])):
+                if matrix[i][j] > 0:
+                    matrix[i][j] = 1
+
         for i in range(len(matrix)):
             for j in range(len(matrix[i])):
                 if matrix[j][i] == 1:
                     for k in range(len(self.vertices)):
                         matrix[j][k] = max(matrix[j][k], matrix[i][k])
+        if not df:
+            return matrix
+        else:
+            return DataFrame(matrix, self.vertices, self.vertices)
 
-        return DataFrame(matrix, index=self.vertices, columns=self.vertices)
-
-    def dijkstra(self, u, v):
-        fi = []
-        beta = []
-        pi = []
-
+    def getbridges(self):
+        bridges = []
         for vertex in self.vertices:
-            fi.append(0)
-            beta.append(0)
-            pi.append(0)
+            for aux_vertex in self.vertices[vertex]:
+                v = vertex + separator + aux_vertex
+                rv = aux_vertex + separator + vertex
+                self.removeedge(vertex, aux_vertex)
+                self.removeedge(aux_vertex, vertex)
+                if not self.isconnected() and (v not in bridges and rv not in bridges):
+                    bridges.append(vertex + separator + aux_vertex)
+                self.addedge(vertex, aux_vertex)
+                self.addedge(aux_vertex, vertex)
+        return bridges
+
+    def eulerianpath(self):
+        odd = 0
+        for vertex in self.vertices:
+            if self.degree(vertex) % 2 != 0:
+                odd += 1
+
+        if odd == 2 or odd == 0:
+            return True
+        else:
+            return False
+
+    def euleriancycle(self):
+        vertices = [v for v in self.vertices if self.degree(v) > 0 and self.degree(v) % 2 == 0]
+        if len(vertices) == len(self.vertices):
+            return True
+        else:
+            return False
+
+
+g = Graph([('0', ['1', '2', '3']), ('1', ['0', '2']), ('2', ['0', '1']), ('3', ['0', '4']), ('4', ['3'])])
+
+print(g)
+print(g.eulerianpath())
+print(g.euleriancycle())

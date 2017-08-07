@@ -7,47 +7,72 @@ class Edge:
         self.tail = tail
         self.weight = weight
 
-    def __str__(self):
+    def __repr__(self):
         return self.head + "-" + self.tail + ': ' + str(self.weight)
 
+    def get(self):
+        return [self.head, self.tail, self.weight]
 
-class NewGraph:
-    def __init__(self, edges, undirected=False):
+
+class DiGraph:
+    def __init__(self, edges):
         self.vertices = []
         self.edges = edges
         self.matrix = []
-        self.undirected = undirected
 
         # Transforma as arestas inseridas em objetos Edge
-        for i in range(len(self.edges)):
-            self.addedge(self.edges[i])
+        for edge in self.edges:
+            self.importedge(edge)
 
-        # Gera matriz
+        self.matrix = self.genmatrix()
+
+    def __str__(self):
+        return str(DataFrame(self.matrix, index=self.vertices, columns=self.vertices))
+
+    def genmatrix(self):
+        matrix = []
         for v in self.vertices:
-            self.matrix.append([0] * len(self.vertices))
+            matrix.append([0] * len(self.vertices))
 
         # Preenche a matriz
         for edge in self.edges:
             x = list(self.vertices).index(edge.head)
             y = list(self.vertices).index(edge.tail)
-            self.matrix[x][y] = edge.weight
+            matrix[x][y] = edge.weight
 
-    def __str__(self):
-        return str(DataFrame(self.matrix, index=self.vertices, columns=self.vertices))
+        return matrix
 
     def addedge(self, edge):
+        assert isinstance(edge, Edge)
+        self.edges.append(edge)
+        self.genmatrix()
+
+    def importedge(self, edge):
+
         self.check_edge(edge)
 
         if edge[0] not in self.vertices:
             self.vertices.append(edge[0])
         if edge[1] not in self.vertices:
             self.vertices.append(edge[1])
+
         self.edges[self.edges.index(edge)] = Edge(*edge)
-        if self.undirected:
-            if len(edge) == 3:
-                self.edges.append(Edge(edge[1], edge[0], edge[2]))
-            else:
-                self.edges.append(Edge(edge[1], edge[0]))
+
+    def removeedge(self, edge):
+        if type(edge) == str:
+            edges = self.edgestostr()
+            for e in edges:
+                if edge == str(e):
+                    self.edges.remove(self.edges[edges.index(e)])
+
+        if type(edge) == list:
+            edges = self.edgestolist()
+            for e in edges:
+                if edge[0:2] == e[0:2]:
+                    self.edges.remove(self.edges[edges.index(e)])
+
+        self.matrix = self.genmatrix()
+        return
 
     def check_edge(self, edge):
         if len(edge) == 3:
@@ -71,15 +96,25 @@ class NewGraph:
         for edge in self.edges:
             if edge.head == origin and edge.tail == dest:
                 return edge.weight
-        return None
+        return 0
 
     def getvertices(self):
         return self.vertices
 
-    def getedges(self):
+    def edgestolist(self):
         edges = []
+
+        for edge in [edge.get() for edge in self.edges]:
+            if edge not in edges:
+                edges.append(edge)
+        return edges
+
+    def edgestostr(self):
+        edges = []
+
         for edge in self.edges:
-            edges.append(str(edge))
+            if str(edge) not in edges:
+                edges.append(str(edge))
         return edges
 
     def degree(self, vertex):
@@ -108,6 +143,7 @@ class NewGraph:
         return True
 
     def isconnected(self):
+        # TODO Refazer com DFS/BFS
         for vertex in self.vertices:
             for aux_vertex in self.vertices:
                 if vertex != aux_vertex and not (
@@ -168,17 +204,8 @@ class NewGraph:
                 return cycle + [cycle[0]]
         return None
 
-    def eulerianpath(self):
-        return self.getpath(len(self.vertices) - 1)
-
     def hamiltonianpath(self):
-        cycle = self.eulerianpath()
-        if cycle:
-            if not cycle[0] in self.getdest(cycle[-1]):
-                return None
-            else:
-                return cycle + [cycle[0]]
-        return None
+        return self.getpath(len(self.vertices) - 1)
 
     def warshall(self, df=False):
         matrix = []
@@ -236,7 +263,4 @@ class NewGraph:
             return [distance, previous]
 
 
-g = NewGraph([['c', 'a'], ['a', 'b'], ['b', 'c']])
-
-print(g)  # ok
-print(g.eulerianpath())
+g = DiGraph([['a', 'b'], ['b', 'c']])
